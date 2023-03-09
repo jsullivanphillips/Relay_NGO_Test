@@ -19,12 +19,12 @@ public class RelayManager : MonoBehaviour
 
     public TMP_Text JoinCodeText;
 
-    public TMP_Text InputJoinCodeText;
+    public TMP_InputField InputJoinCodeText;
 
     Guid hostAllocationId;
     Guid playerAllocationId;
     string allocationRegion = "";
-    string joinCode = "n/a";
+    string joinCode = "N/A";
     string playerId = "Not signed in";
 
     async void Start()

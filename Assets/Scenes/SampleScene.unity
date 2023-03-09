@@ -1900,7 +1900,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerIdText: {fileID: 23274909}
   JoinCodeText: {fileID: 1254045670}
-  InputJoinCodeText: {fileID: 201828251}
+  InputJoinCodeText: {fileID: 548929836}
 --- !u!1 &1601959171
 GameObject:
   m_ObjectHideFlags: 0
