@@ -98,6 +98,7 @@ public class RelayManager : MonoBehaviour
     {
         joinCode = InputJoinCodeText.text;
         Debug.Log("joinCode: " + joinCode);
+        OnJoin();
     }
 
     public async void OnJoin()

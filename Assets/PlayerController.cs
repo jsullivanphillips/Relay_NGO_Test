@@ -8,7 +8,7 @@ public class PlayerController : NetworkBehaviour
 {
 
     NetworkVariable<Vector3> unitPosition = new NetworkVariable<Vector3>(new Vector3(0, 0, 0), NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
-    [SerializeField] GameObject sceneLoader;
+    
 
     public override void OnNetworkSpawn()
     {
@@ -22,10 +22,6 @@ public class PlayerController : NetworkBehaviour
         
     }
 
-    public void LoadLevel1()
-    {
-        Instantiate(sceneLoader);
-    }
 
     void Update()
     {
