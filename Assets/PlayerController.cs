@@ -7,39 +7,36 @@ using UnityEngine;
 public class PlayerController : NetworkBehaviour
 {
 
+    NetworkVariable<Vector3> unitPosition = new NetworkVariable<Vector3>(new Vector3(0, 0, 0), NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+
     public override void OnNetworkSpawn()
     {
         DontDestroyOnLoad(this.gameObject);
+
+        // This is where the position is being changed
+        unitPosition.OnValueChanged += (Vector3 previousValue, Vector3 newValue) =>
+        {
+            transform.position += newValue;
+        };
+        
     }
 
     void Update()
     {
-        if (!IsSpawned)
+        if (!IsSpawned || !IsOwner)
         {
             return;
         }
-        if (!IsOwner)
-        {
-            return;
-        }
-        Vector3 moveDir = new Vector3(0, 0, 0);
-        if(Input.GetKey(KeyCode.W))
-        {
-            moveDir += new Vector3(0, 1, 0);
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            moveDir += new Vector3(0, -1, 0);
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            moveDir += new Vector3(-1, 0, 0);
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            moveDir += new Vector3(1, 0, 0);
-        }
+
+        Vector3 moveDir = new Vector3(0, 0);
+        if (Input.GetKey(KeyCode.W)) moveDir.y = +1f;
+        if (Input.GetKey(KeyCode.S)) moveDir.y = -1f;
+        if (Input.GetKey(KeyCode.A)) moveDir.x = -1f;
+        if (Input.GetKey(KeyCode.D)) moveDir.x = +1f;
+
         float moveSpeed = 3f;
         transform.position += moveDir * moveSpeed * Time.deltaTime;
+        unitPosition.Value = moveDir * moveSpeed * Time.deltaTime;
+
     }
 }
