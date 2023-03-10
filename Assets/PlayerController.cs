@@ -8,10 +8,11 @@ public class PlayerController : NetworkBehaviour
 {
 
     NetworkVariable<Vector3> unitPosition = new NetworkVariable<Vector3>(new Vector3(0, 0, 0), NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    [SerializeField] GameObject sceneLoader;
 
     public override void OnNetworkSpawn()
     {
-        DontDestroyOnLoad(this.gameObject);
+        
 
         // This is where the position is being changed
         unitPosition.OnValueChanged += (Vector3 previousValue, Vector3 newValue) =>
@@ -19,6 +20,11 @@ public class PlayerController : NetworkBehaviour
             transform.position += newValue;
         };
         
+    }
+
+    public void LoadLevel1()
+    {
+        Instantiate(sceneLoader);
     }
 
     void Update()

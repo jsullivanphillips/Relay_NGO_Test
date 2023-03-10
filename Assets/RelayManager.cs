@@ -21,6 +21,8 @@ public class RelayManager : MonoBehaviour
 
     public TMP_InputField InputJoinCodeText;
 
+    [SerializeField] GameObject NetworkUI; 
+
     Guid hostAllocationId;
     Guid playerAllocationId;
     string allocationRegion = "";
@@ -30,6 +32,7 @@ public class RelayManager : MonoBehaviour
     async void Start()
     {
         await UnityServices.InitializeAsync();
+        OnSignIn();
 
         UpdateUI();
     }
@@ -88,6 +91,7 @@ public class RelayManager : MonoBehaviour
         NetworkManager.Singleton.StartHost();
 
         UpdateUI();
+        NetworkUI.SetActive(false);
     }
 
     public void OnSubmitJoinCodeText()
@@ -116,6 +120,7 @@ public class RelayManager : MonoBehaviour
         NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
 
         NetworkManager.Singleton.StartClient();
+        NetworkUI.SetActive(false);
     }
 
 

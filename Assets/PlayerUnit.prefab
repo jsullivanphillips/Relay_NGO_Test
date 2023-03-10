@@ -141,3 +141,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e31472357b069a4aa23bdb190a59fe4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sceneLoader: {fileID: 7998837908895282963, guid: 50467cadcf6d52b44a97e4fdd23e7574, type: 3}
