@@ -21,8 +21,9 @@ public class RelayManager : MonoBehaviour
 
     public TMP_InputField InputJoinCodeText;
 
-    [SerializeField] GameObject NetworkUI; 
+    [SerializeField] GameObject NetworkUI;
 
+    JoinCodeHolder joinCodeHolder;
     Guid hostAllocationId;
     Guid playerAllocationId;
     string allocationRegion = "";
@@ -33,7 +34,7 @@ public class RelayManager : MonoBehaviour
     {
         await UnityServices.InitializeAsync();
         OnSignIn();
-
+        joinCodeHolder = FindObjectOfType<JoinCodeHolder>();
         UpdateUI();
     }
 
@@ -79,6 +80,8 @@ public class RelayManager : MonoBehaviour
         {
             joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
             Debug.Log(joinCode);
+            joinCodeHolder.joinCode = joinCode;
+            
         }
         catch
         {
