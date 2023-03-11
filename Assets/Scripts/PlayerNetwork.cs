@@ -5,7 +5,6 @@ using Unity.Netcode;
 
 public class PlayerNetwork : NetworkBehaviour
 {
-
     private int localClientId;
     private NetworkVariable<Vector3> m_playerPosition = new NetworkVariable<Vector3>(new Vector3(0,0,0), NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
     private Vector3[] spawnLocations = {

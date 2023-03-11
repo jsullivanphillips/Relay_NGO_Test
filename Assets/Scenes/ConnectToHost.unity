@@ -1198,7 +1198,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 738661486}
-  - component: {fileID: 738661485}
+  - component: {fileID: 738661487}
   m_Layer: 0
   m_Name: JoinCodeHolder
   m_TagString: Untagged
@@ -1206,19 +1206,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &738661485
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 738661483}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b395c4a005c148a19cc9874299d3635, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  joinCode: 
 --- !u!4 &738661486
 Transform:
   m_ObjectHideFlags: 0
@@ -1234,6 +1221,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &738661487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 738661483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b395c4a005c148a19cc9874299d3635, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  joinCode: 
 --- !u!1 &873544097
 GameObject:
   m_ObjectHideFlags: 0
@@ -2053,6 +2053,11 @@ MonoBehaviour:
     NetworkPrefabs:
     - Override: 0
       Prefab: {fileID: 5428163333903843229, guid: d8c7628c3868b4550b1065e41980d557, type: 3}
+      SourcePrefabToOverride: {fileID: 0}
+      SourceHashToOverride: 0
+      OverridingTargetPrefab: {fileID: 0}
+    - Override: 0
+      Prefab: {fileID: 7368914333170907956, guid: 4f18d2ddbbd7c47c78976110687bcf69, type: 3}
       SourcePrefabToOverride: {fileID: 0}
       SourceHashToOverride: 0
       OverridingTargetPrefab: {fileID: 0}
