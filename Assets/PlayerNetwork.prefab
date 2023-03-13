@@ -380,10 +380,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca9d699fb682545b0a137201c503f037, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_playerColor:
+    m_InternalValue:
+      serializedVersion: 2
+      rgba: 0
   hpMax:
     m_InternalValue: 10
   hp:
     m_InternalValue: 12
+  hasTaunt: 0
+  tauntColor:
+    serializedVersion: 2
+    rgba: 0
+  baseColor:
+    serializedVersion: 2
+    rgba: 0
+  spriteRenderer: {fileID: 5428163333903843216}
   healthBar: {fileID: 6462739419518210264}
 --- !u!1 &5433695305124625698
 GameObject:

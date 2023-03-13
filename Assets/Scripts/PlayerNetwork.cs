@@ -9,14 +9,19 @@ using Unity.Collections;
 public class PlayerNetwork : NetworkBehaviour
 {
     private int localClientId;
-    private NetworkVariable<FixedString128Bytes> playerName = new NetworkVariable<FixedString128Bytes>();
-
+    //public NetworkVariable<FixedString128Bytes> playerName = new NetworkVariable<FixedString128Bytes>();
+    public NetworkVariable<Color32> m_playerColor = new NetworkVariable<Color32>();
     public NetworkVariable<int> hpMax = new NetworkVariable<int>(10);
     public NetworkVariable<int> hp = new NetworkVariable<int>(10);
+    public bool hasTaunt = false;
+    [SerializeField] Color32 tauntColor;
+    [SerializeField] Color32 baseColor;
+    [SerializeField] SpriteRenderer spriteRenderer;
 
     private NetworkVariable<Vector3> m_playerPosition = new NetworkVariable<Vector3>(new Vector3(0,0,0), NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
     [SerializeField] Slider healthBar;
     //private BattleSystem bs;
+
 
     public override void OnNetworkSpawn()
     {
@@ -25,6 +30,11 @@ public class PlayerNetwork : NetworkBehaviour
             localClientId = (int)NetworkManager.Singleton.LocalClientId;
             Debug.Log(localClientId);
         }
+
+        m_playerColor.OnValueChanged += (Color32 previousValue, Color32 newValue) =>
+        {
+            spriteRenderer.color = newValue;
+        };
 
         //bs = FindObjectOfType<BattleSystem>();
 

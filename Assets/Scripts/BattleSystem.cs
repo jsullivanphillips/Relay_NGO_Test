@@ -16,6 +16,8 @@ public class BattleSystem : NetworkBehaviour
     public GameObject playerPrefab;
     public Transform enemyBattleStation;
     public Transform[] playerBattleStations;
+    [SerializeField] Color32 tauntColor;
+    [SerializeField] Color32 baseColor;
 
 
     Unit enemyUnit;
@@ -39,14 +41,19 @@ public class BattleSystem : NetworkBehaviour
 
             NewClientJoin((ulong)0);
 
-            GameObject mobGO = Instantiate(enemyPrefab, enemyBattleStation.position, Quaternion.identity);
-            mobGO.GetComponent<NetworkObject>().Spawn();
-            enemyUnit = mobGO.GetComponent<Unit>();
+            SpawnMobs();
 
             m_state.Value = BattleState.PLAYERTURN;
             
         }
         PlayerTurn();
+    }
+
+    private void SpawnMobs()
+    {
+        GameObject mobGO = Instantiate(enemyPrefab, enemyBattleStation.position, Quaternion.identity);
+        mobGO.GetComponent<NetworkObject>().Spawn();
+        enemyUnit = mobGO.GetComponent<Unit>();
     }
 
     private void NewClientJoin(ulong clientNum)
@@ -78,34 +85,50 @@ public class BattleSystem : NetworkBehaviour
         return true;
     }
 
+    void SetBoolList(List<bool> lst, bool value)
+    {
+        for (int i = 0; i < lst.Count; i ++)
+        {
+            lst[i] = value;
+        }    
+    }
+
+    int playerWithTaunt()
+    {
+        List<int> playersWithTaunt = new List<int>();
+        for (int i = 0; i < players.Count; i ++)
+        {
+            if (players[i].hasTaunt)
+                playersWithTaunt.Add(i);
+        }
+        if(playersWithTaunt.Count > 0)
+            return playersWithTaunt[Random.Range(0, playersWithTaunt.Count)];
+        
+        return -1;
+    }
+
     void PlayerTurn()
     {
         Debug.Log("Player Turn");
-        if(IsServer)
-        {
-            Debug.Log(hasPlayerActed);
-        }
     }
 
-    public void DealDamage(int damage, int clientId)
-    {
-        if (IsServer)
-        {
-            Debug.Log("client clicking attack button: " + clientId);
-            Debug.Log("hasPlayerActed lenght: " + hasPlayerActed.Count);
-            if (!hasPlayerActed[clientId])
-            {
-                enemyUnit.TakeDamage(damage);
-                hasPlayerActed[clientId] = true;
-            }
-        }
-    }
-
-    void EnemyTurn()
+    IEnumerator EnemyTurn()
     {
         Debug.Log("Enemy turn");
-        int randomTarget = Random.Range(0, players.Count);
-        bool isDead = players[randomTarget].TakeDamage(enemyUnit.DealDamage());
+        int target;
+        yield return new WaitForSeconds(1f);
+
+        if (playerWithTaunt() != -1)
+        {
+            target = playerWithTaunt();
+        }
+        else
+        {
+            target = Random.Range(0, players.Count);
+        }
+        
+        bool isDead = players[target].TakeDamage(enemyUnit.DealDamage());
+
         if(isDead)
         {
             m_state.Value = BattleState.LOST;
@@ -113,14 +136,74 @@ public class BattleSystem : NetworkBehaviour
         else
         {
             m_state.Value = BattleState.PLAYERTURN;
+            SetBoolList(hasPlayerActed, false);
+            ClearPlayerTaunts();
             PlayerTurn();
         }
     }
+
+    void DealDamage(int damage, int clientId)
+    {
+        if (IsServer)
+        {
+            if (!hasPlayerActed[clientId])
+            {
+                enemyUnit.TakeDamage(damage);
+                hasPlayerActed[clientId] = true;
+            }
+            ExitPlayerTurn();
+        }
+    }
+
+    void SetPlayerTaunt(int clientId)
+    {
+        if(IsServer)
+        {
+            if(!hasPlayerActed[clientId])
+            {
+                players[clientId].hasTaunt = true;
+                players[clientId].m_playerColor.Value = tauntColor;
+                hasPlayerActed[clientId] = true;
+            }
+        }
+        ExitPlayerTurn();
+    }
+
+    void ClearPlayerTaunts()
+    {
+        for (int i = 0; i < players.Count; i ++)
+        {
+            players[i].hasTaunt = false;
+            players[i].m_playerColor.Value = baseColor;
+        }
+    }
+
+    void ExitPlayerTurn()
+    {
+        if (AllPlayersReady())
+        {
+            m_state.Value = BattleState.ENEMYTURN;
+            StartCoroutine(EnemyTurn());
+        }
+    }
+
 
     public void OnAttackBtn()
     {
         int damage = 2;
         DealDamageServerRpc(damage, new ServerRpcParams());
+    }
+
+    public void OnTauntBtn()
+    {
+        SetTauntServerRpc(new ServerRpcParams());
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void SetTauntServerRpc(ServerRpcParams serverRpcParams)
+    {
+        int senderClientId = (int)serverRpcParams.Receive.SenderClientId;
+        SetPlayerTaunt(senderClientId);
     }
 
     [ServerRpc(RequireOwnership = false)]
