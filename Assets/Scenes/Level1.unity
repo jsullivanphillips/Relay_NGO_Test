@@ -315,7 +315,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyPrefab: {fileID: 7368914333170907956, guid: 4f18d2ddbbd7c47c78976110687bcf69, type: 3}
+  playerPrefab: {fileID: 5428163333903843229, guid: d8c7628c3868b4550b1065e41980d557, type: 3}
   enemyBattleStation: {fileID: 1628304492}
+  playerBattleStations:
+  - {fileID: 818713154}
+  - {fileID: 1537685968}
+  - {fileID: 1746258006}
+  - {fileID: 1092677208}
 --- !u!4 &621559566
 Transform:
   m_ObjectHideFlags: 0
@@ -974,7 +980,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 621559565}
         m_TargetAssemblyTypeName: BattleSystem, Assembly-CSharp
-        m_MethodName: DealDamage
+        m_MethodName: OnAttackBtn
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1386,7 +1392,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1993904218}
   m_Layer: 0
-  m_Name: SpawnLocations
+  m_Name: PlayerBattleStations
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
