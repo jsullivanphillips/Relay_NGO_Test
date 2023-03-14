@@ -27,7 +27,10 @@ public class BattleSystem : NetworkBehaviour
 
     void Start()
     {
-        m_state.Value = BattleState.START;
+        if (IsServer)
+        {
+            m_state.Value = BattleState.START;
+        }
         SetupBattle();
     }
 
