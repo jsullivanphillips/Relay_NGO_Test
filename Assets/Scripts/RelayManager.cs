@@ -94,7 +94,7 @@ public class RelayManager : MonoBehaviour
         NetworkManager.Singleton.StartHost();
 
         UpdateUI();
-        NetworkUI.SetActive(false);
+        //NetworkUI.SetActive(false);
     }
 
     public void OnSubmitJoinCodeText()
