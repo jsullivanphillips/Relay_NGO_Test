@@ -8,8 +8,13 @@ public class Unit : NetworkBehaviour
 {
     public NetworkVariable<int> hpMax = new NetworkVariable<int>(10);
     public NetworkVariable<int> hp = new NetworkVariable<int>(8);
+    [SerializeField] int localHpMax;
+    [SerializeField] int localHp;
+
     [SerializeField] Slider healthBar;
     [SerializeField] int damage = 4;
+    public GameObject targetingIcon;
+    bool isDead = false;
 
     public override void OnNetworkSpawn()
     {
@@ -20,10 +25,14 @@ public class Unit : NetworkBehaviour
     {
         if (IsServer)
         {
+            hpMax.Value = localHpMax;
+            hp.Value = localHp;
+
             if (hp.Value > hpMax.Value)
             {
                 hpMax.Value = hp.Value;
             }
+
         }
         hp.OnValueChanged += (int previousValue, int newValue) =>
         {
@@ -36,22 +45,30 @@ public class Unit : NetworkBehaviour
 
     public virtual bool TakeDamage(int amount)
     {
-        hp.Value -= amount;
+        if(!isDead)
+        {
+            hp.Value -= amount;
 
-        if (hp.Value <= 0)
-        {
-            return true;
+            if (hp.Value <= 0)
+            {
+                isDead = true;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
-        else
-        {
-            return false;
-        }
+        return false;
     }
 
 
     public int DealDamage()
     {
+        if(!isDead)
         return damage;
+
+        return 0;
     }
 
 

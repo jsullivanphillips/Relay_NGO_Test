@@ -384,10 +384,9 @@ MonoBehaviour:
     m_InternalValue:
       serializedVersion: 2
       rgba: 0
-  hpMax:
-    m_InternalValue: 10
-  hp:
-    m_InternalValue: 12
+  localHpMax: 35
+  localHp: 35
+  attackDamage: 10
   hasTaunt: 0
   tauntColor:
     serializedVersion: 2

@@ -12,20 +12,23 @@ public class BattleSystem : NetworkBehaviour
         new NetworkVariable<BattleState>(BattleState.START, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
 
+    [SerializeField] int num_enemies = 1;
     public GameObject enemyPrefab;
     public GameObject playerPrefab;
-    public Transform enemyBattleStation;
+
+    public Transform[] enemyBattleStation;
     public Transform[] playerBattleStations;
+
     [SerializeField] Color32 tauntColor;
     [SerializeField] Color32 baseColor;
 
-
-    Unit enemyUnit;
+    // is up to date only on server
+    public List<Unit> enemyUnits = new List<Unit>();
     List<PlayerNetwork> players = new List<PlayerNetwork>();
     List<bool> hasPlayerActed = new List<bool>();
     int clientIdInt;
 
-    void Start()
+    public override void OnNetworkSpawn()
     {
         if (IsServer)
         {
@@ -52,11 +55,15 @@ public class BattleSystem : NetworkBehaviour
         PlayerTurn();
     }
 
+    // only runs on server
     private void SpawnMobs()
     {
-        GameObject mobGO = Instantiate(enemyPrefab, enemyBattleStation.position, Quaternion.identity);
-        mobGO.GetComponent<NetworkObject>().Spawn();
-        enemyUnit = mobGO.GetComponent<Unit>();
+        for (int i = 0; i < num_enemies && i < enemyBattleStation.Length; i++)
+        {
+            GameObject mobGO = Instantiate(enemyPrefab, enemyBattleStation[i].position, Quaternion.identity);
+            mobGO.GetComponent<NetworkObject>().Spawn();
+            enemyUnits.Add(mobGO.GetComponent<Unit>());
+        }
     }
 
     private void NewClientJoin(ulong clientNum)
@@ -121,28 +128,60 @@ public class BattleSystem : NetworkBehaviour
         int target;
         yield return new WaitForSeconds(1f);
 
-        if (playerWithTaunt() != -1)
+        for (int i = 0; i < enemyUnits.Count; i++)
         {
-            target = playerWithTaunt();
+            if (playerWithTaunt() != -1)
+            {
+                target = playerWithTaunt();
+            }
+            else
+            {
+                target = Random.Range(0, players.Count);
+            }
+            players[target].TakeDamage(enemyUnits[i].DealDamage()); //this returns a bool if the target player has died. true if player died  
         }
-        else
-        {
-            target = Random.Range(0, players.Count);
-        }
-        
-        bool isDead = players[target].TakeDamage(enemyUnit.DealDamage());
 
-        if(isDead)
+        m_state.Value = BattleState.PLAYERTURN;
+        SetBoolList(hasPlayerActed, false);
+        ClearPlayerTaunts();
+        PlayerTurn();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void GetNextTargetServerRpc(int currentTarget, ServerRpcParams serverRpcParams)
+    {
+        ulong senderClientId = serverRpcParams.Receive.SenderClientId;
+        int newTarget = GetNextTarget(currentTarget);
+
+        ClientRpcParams clientRpcParams = new ClientRpcParams
         {
-            m_state.Value = BattleState.LOST;
+            Send = new ClientRpcSendParams
+            {
+                TargetClientIds = new ulong[] { senderClientId }
+            }
+        };
+
+        players[(int)senderClientId].RecieveNextTargetClientRpc(newTarget, clientRpcParams);
+    }
+
+    
+    public int GetNextTarget(int currentTarget)
+    {
+        if (currentTarget >= enemyUnits.Count)
+            return 0;
+
+        enemyUnits[currentTarget].targetingIcon.SetActive(false);
+        
+        if (currentTarget < enemyUnits.Count - 1)
+        { 
+            currentTarget++;
         }
         else
         {
-            m_state.Value = BattleState.PLAYERTURN;
-            SetBoolList(hasPlayerActed, false);
-            ClearPlayerTaunts();
-            PlayerTurn();
+            currentTarget = 0;
         }
+        enemyUnits[currentTarget].targetingIcon.SetActive(true);
+        return currentTarget;
     }
 
     void DealDamage(int damage, int clientId)
@@ -151,7 +190,8 @@ public class BattleSystem : NetworkBehaviour
         {
             if (!hasPlayerActed[clientId])
             {
-                enemyUnit.TakeDamage(damage);
+                int target = players[clientId].GetTarget();
+                enemyUnits[target].TakeDamage(damage); // <---------------- TARGETING
                 hasPlayerActed[clientId] = true;
             }
             ExitPlayerTurn();
@@ -193,8 +233,7 @@ public class BattleSystem : NetworkBehaviour
 
     public void OnAttackBtn()
     {
-        int damage = 2;
-        DealDamageServerRpc(damage, new ServerRpcParams());
+        DealDamageServerRpc(new ServerRpcParams());
     }
 
     public void OnTauntBtn()
@@ -210,9 +249,10 @@ public class BattleSystem : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void DealDamageServerRpc(int damage, ServerRpcParams serverRpcParams)
+    public void DealDamageServerRpc(ServerRpcParams serverRpcParams)
     {
         int senderClientId = (int)serverRpcParams.Receive.SenderClientId;
+        int damage = players[senderClientId].GetAttackDamage();
         DealDamage(damage, senderClientId);
     }
 
